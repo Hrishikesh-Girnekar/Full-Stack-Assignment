@@ -25,14 +25,14 @@ public class TaskController {
     }
 
     @GetMapping("/api/tasks")
-    public ResponseEntity<?> searchTasks(
+    public ResponseEntity<Map<String, Object>> searchTasks(
             @RequestParam(required = false, defaultValue = "") String q,
             @RequestParam(required = false) String status,
             @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(required = false, defaultValue = "10") int pageSize) {
 
         // Normalize query input
-        String query = q == null ? "" : q.trim();
+        String query = Objects.requireNonNullElse(q, "").trim();
         String searchTerm = "%" + query.toLowerCase() + "%";
 
         // Parse status filter
