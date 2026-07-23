@@ -1,9 +1,15 @@
 package com.internal.tasktracker;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -28,14 +34,19 @@ public class TaskController {
 
         // Parse status filter
         String normalizedStatus = null;
-        if (status != null && !status.isEmpty()) {
-            normalizedStatus = TaskStatus.valueOf(status.toUpperCase()).name();
+
+        if (status != null && !status.isBlank()) {
+            try {
+                normalizedStatus = TaskStatus.valueOf(status.toUpperCase()).name();
+            } catch (IllegalArgumentException ex) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Invalid status: " + status));
+            }
         }
 
         // Query complexity estimation for logging
-       
         System.out.println("[TaskController] q=\"" + query + "\" status=" + normalizedStatus
-        + " page=" + page + " pageSize=" + pageSize);
+                + " page=" + page + " pageSize=" + pageSize);
 
         List<Task> allResults = taskRepository.searchTasks(searchTerm, normalizedStatus);
 
